@@ -22,6 +22,21 @@
 #define OPADDR 0x5A
 #define REGADDR 0x04
 
+#define KICKERDELAY 10
+
+boolean requestStopKick = 0;
+boolean kickerStatus = 0;
+
+int zeroPosition;
+
+
+
+#define ROTARY_SLAVE_ADDRESS 5
+#define ROTARY_COUNT 6
+#define PRINT_DELAY 200
+
+// Initial motor position is 0.
+int positions[ROTARY_COUNT] = {0};
 
 int run = 0;
 
@@ -49,6 +64,19 @@ void muxTest(){
 
 void loop(){
   sCmd.readSerial();
+  updateMotorPositions();
+  if(requestStopKick == 1){
+    if(kickerStatus == 0){
+      requestStopKick = 0;
+    } else {
+      if((positions[0] - zeroPosition + kickerStatus*KICKERDELAY) % 40 ==  0){
+        motorStop(KICKERS);
+        Serial.print("Stopping kickers at: ");
+        Serial.println(positions[0] % 40);
+        kickerStatus = 0;
+      }
+    }
+  }
 }
 
 
@@ -103,7 +131,7 @@ void rationalMotors(){
   int right = atoi(sCmd.next());
   motorControl(FRONT, -front);
   motorControl(BACK, back);
-  motorControl(LEFT, -left);
+  motorControl(LEFT, left);
   motorControl(RIGHT, right);
 }
 
@@ -114,11 +142,15 @@ void pingMethod(){
 void kicker(){
   int type = atoi(sCmd.next());
   if(type == 0){
-    motorStop(KICKERS);
+    requestStopKick = 1;
   } else if (type == 1){
+    Serial.print("Starting From: ");
+    Serial.println(positions[0] % 40);
     motorForward(KICKERS, 100);
+    kickerStatus = 1;
   } else {
     motorBackward(KICKERS, 100);
+    kickerStatus = -1;
   }
 }
 
@@ -130,16 +162,47 @@ void completeHalt(){
   motorControl(RIGHT, 0);
 }
 
+
+void kickReset(){
+  Serial.print("Setting zero to: ");
+  zeroPosition = positions[0]%40;
+  Serial.println(zeroPosition);
+}
+
+
 void setup(){
   Wire.begin();
   sCmd.addCommand("f", dontMove); 
   sCmd.addCommand("h", completeHalt); 
   sCmd.addCommand("motor", spinmotor); 
   sCmd.addCommand("r", rationalMotors); 
+  sCmd.addCommand("kickreset", kickReset); 
   sCmd.addCommand("ping", pingMethod); 
   sCmd.addCommand("kick", kicker); 
   sCmd.addCommand("mux", muxTest); 
   SDPsetup();
   helloWorld();
 }
+
+
+void updateMotorPositions() {
+  // Request motor position deltas from rotary slave board
+  Wire.requestFrom(ROTARY_SLAVE_ADDRESS, ROTARY_COUNT);
+  
+  // Update the recorded motor positions
+  for (int i = 0; i < ROTARY_COUNT; i++) {
+    positions[i] += (int8_t) Wire.read();  // Must cast to signed 8-bit type
+  }
+}
+
+void printMotorPositions() {
+  Serial.print("Motor positions: ");
+  for (int i = 0; i < ROTARY_COUNT; i++) {
+    Serial.print(positions[i]);
+    Serial.print(' ');
+  }
+  Serial.println();
+  delay(PRINT_DELAY);  // Delay to avoid flooding serial out
+}
+
 
