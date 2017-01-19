@@ -2,6 +2,7 @@
 #include "SDPArduino.h"
 #include <Wire.h>
 #include <Arduino.h>
+#include <I2CPort.h>
 
 
 //Kickers in back
@@ -11,10 +12,10 @@
 //define LEFT 3
 
 //Kickers in front
-#define FRONT 5
+#define FRONT 7
 #define RIGHT 3
-#define BACK 1
-#define LEFT 7
+#define BACK 5
+#define LEFT 1
 
 #define KICKERS 0
 #define SPEAKER 1
@@ -64,25 +65,8 @@ void muxTest(){
 
 void loop(){
   sCmd.readSerial();
-  updateMotorPositions();
-  if(requestStopKick == 1){
-    if(kickerStatus == 0){
-      requestStopKick = 0;
-    } else {
-      if((positions[0] - zeroPosition + kickerStatus*KICKERDELAY) % 40 ==  0){
-        motorStop(KICKERS);
-        Serial.print("Stopping kickers at: ");
-        Serial.println(positions[0] % 40);
-        kickerStatus = 0;
-      }
-    }
-  }
 }
 
-
-void test(){
-  run = 1;
-}
 
 void dontMove(){
   motorControl(FRONT, 0);
@@ -124,15 +108,16 @@ void motorControl(int motor, int power){
   }
 }
 
+
 void rationalMotors(){
   int front = atoi(sCmd.next());
   int back  = atoi(sCmd.next());
   int left  = atoi(sCmd.next());
   int right = atoi(sCmd.next());
   motorControl(FRONT, -front);
-  motorControl(BACK, back);
+  motorControl(BACK, -back);
   motorControl(LEFT, left);
-  motorControl(RIGHT, right);
+  motorControl(RIGHT, -right);
 }
 
 void pingMethod(){
@@ -142,7 +127,7 @@ void pingMethod(){
 void kicker(){
   int type = atoi(sCmd.next());
   if(type == 0){
-    requestStopKick = 1;
+    motorStop(KICKERS);
   } else if (type == 1){
     Serial.print("Starting From: ");
     Serial.println(positions[0] % 40);
@@ -163,20 +148,12 @@ void completeHalt(){
 }
 
 
-void kickReset(){
-  Serial.print("Setting zero to: ");
-  zeroPosition = positions[0]%40;
-  Serial.println(zeroPosition);
-}
-
-
 void setup(){
   Wire.begin();
   sCmd.addCommand("f", dontMove); 
   sCmd.addCommand("h", completeHalt); 
   sCmd.addCommand("motor", spinmotor); 
   sCmd.addCommand("r", rationalMotors); 
-  sCmd.addCommand("kickreset", kickReset); 
   sCmd.addCommand("ping", pingMethod); 
   sCmd.addCommand("kick", kicker); 
   sCmd.addCommand("mux", muxTest); 
@@ -184,16 +161,6 @@ void setup(){
   helloWorld();
 }
 
-
-void updateMotorPositions() {
-  // Request motor position deltas from rotary slave board
-  Wire.requestFrom(ROTARY_SLAVE_ADDRESS, ROTARY_COUNT);
-  
-  // Update the recorded motor positions
-  for (int i = 0; i < ROTARY_COUNT; i++) {
-    positions[i] += (int8_t) Wire.read();  // Must cast to signed 8-bit type
-  }
-}
 
 void printMotorPositions() {
   Serial.print("Motor positions: ");
