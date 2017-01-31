@@ -2,7 +2,6 @@
 #include "SDPArduino.h"
 #include <Wire.h>
 #include <Arduino.h>
-#include <I2CPort.h>
 
 
 //Kickers in back
@@ -126,17 +125,10 @@ void pingMethod(){
 
 void kicker(){
   int type = atoi(sCmd.next());
-  if(type == 0){
-    motorStop(KICKERS);
-  } else if (type == 1){
-    Serial.print("Starting From: ");
-    Serial.println(positions[0] % 40);
-    motorForward(KICKERS, 100);
-    kickerStatus = 1;
-  } else {
-    motorBackward(KICKERS, 100);
-    kickerStatus = -1;
-  }
+  digitalWrite(9,HIGH);
+  delay(500);
+  digitalWrite(9,LOW);
+  Serial.println("kicked");
 }
 
 void completeHalt(){
