@@ -6,8 +6,9 @@
 #define FRONT 5
 #define RIGHT 3
 #define BACK 4
-#define LEFT 0
-#define KICKERS 1
+#define LEFT 1
+#define SPINNER 2
+#define KICKER 0
 
 
 int run = 0;
@@ -65,17 +66,30 @@ void pingMethod(){
 
 void kicker(){
   int type = atoi(sCmd.next());
-  if(type == 0){
-    motorStop(KICKERS);
-  } else if (type == 1){
-    motorForward(KICKERS, 100);
-  } else {
-    motorBackward(KICKERS, 100);
-  }
+  digitalWrite(9,HIGH);
+  delay(500);
+  digitalWrite(9,LOW);
+  Serial.println("kicked");
 }
 
 void completeHalt(){
   motorAllStop();
+}
+
+void spin(){
+  int mode = atoi(sCmd.next());
+  if(mode == 1){
+    motorBackward(SPINNER, 120);
+  }
+  else{
+    motorStop(SPINNER);
+  }
+}
+
+void kick(){
+  motorForward(KICKER, 100);
+  delay(600);
+  motorStop(KICKER);
 }
 
 void setup(){
@@ -84,8 +98,8 @@ void setup(){
   sCmd.addCommand("motor", spinmotor); 
   sCmd.addCommand("r", rationalMotors); 
   sCmd.addCommand("ping", pingMethod); 
-  sCmd.addCommand("kick", kicker); 
+  sCmd.addCommand("kick", kick);
+  sCmd.addCommand("spin", spin); 
   SDPsetup();
   helloWorld();
 }
-
