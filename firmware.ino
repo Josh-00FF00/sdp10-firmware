@@ -65,11 +65,7 @@ void pingMethod(){
 }
 
 void kicker(){
-  int type = atoi(sCmd.next());
-  digitalWrite(9,HIGH);
-  delay(500);
-  digitalWrite(9,LOW);
-  Serial.println("kicked");
+// removed
 }
 
 void completeHalt(){
@@ -87,9 +83,10 @@ void spin(){
 }
 
 void kick(){
-  motorForward(KICKER, 100);
-  delay(600);
-  motorStop(KICKER);
+  digitalWrite(9,HIGH);
+  delay(300);
+  digitalWrite(9,LOW);
+  Serial.println("kicked");
 }
 
 void setup(){
