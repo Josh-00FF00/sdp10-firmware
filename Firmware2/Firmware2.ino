@@ -11,9 +11,9 @@
 //define LEFT 3
 
 //Kickers in front
-#define FRONT 7
+#define FRONT 5
 #define RIGHT 3
-#define BACK 5
+#define BACK 4
 #define LEFT 1
 
 #define KICKERS 0
@@ -163,5 +163,4 @@ void printMotorPositions() {
   Serial.println();
   delay(PRINT_DELAY);  // Delay to avoid flooding serial out
 }
-
 
