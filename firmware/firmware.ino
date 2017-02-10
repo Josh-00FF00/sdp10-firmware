@@ -80,11 +80,15 @@ void spin(){
     motorBackward(SPINNER, 50);
     delay(200);
     motorStop(SPINNER);
+    Serial.println("closed");
+    state = 1;
   }
   else if(mode == 0 && state){
     motorForward(SPINNER, 50);
     delay(200);
     motorStop(SPINNER);
+    Serial.println("opened");
+    state = 0
   }
 }
 
