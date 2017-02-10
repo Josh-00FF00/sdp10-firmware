@@ -74,10 +74,16 @@ void completeHalt(){
 
 void spin(){
   int mode = atoi(sCmd.next());
-  if(mode == 1){
-    motorBackward(SPINNER, 120);
+  //0 for opened and 1 for closed
+  bool state = 0;
+  if(mode == 1 && !state){
+    motorBackward(SPINNER, 50);
+    delay(200);
+    motorStop(SPINNER);
   }
-  else{
+  else if(mode == 0 && state){
+    motorForward(SPINNER, 50);
+    delay(200);
     motorStop(SPINNER);
   }
 }
