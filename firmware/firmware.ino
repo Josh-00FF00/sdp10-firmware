@@ -10,6 +10,7 @@
 #define SPINNER 2
 #define KICKER 0
 
+boolean grState = false;
 
 int run = 0;
 
@@ -72,23 +73,22 @@ void completeHalt(){
   motorAllStop();
 }
 
-void spin(){
+void grab(){
   int mode = atoi(sCmd.next());
   //0 for opened and 1 for closed
-  bool state = 0;
-  if(mode == 1 && !state){
-    motorBackward(SPINNER, 50);
-    delay(200);
+  if(mode == 1 && !grState){
+    //grState = 1;
+    motorBackward(SPINNER, 80);
+    delay(600);
     motorStop(SPINNER);
     Serial.println("closed");
-    state = 1;
   }
-  else if(mode == 0 && state){
-    motorForward(SPINNER, 50);
-    delay(200);
+  else if(mode == 0 && grState){
+    grState = 0;
+    motorForward(SPINNER, 80);
+    delay(600);
     motorStop(SPINNER);
     Serial.println("opened");
-    state = 0
   }
 }
 
@@ -106,7 +106,7 @@ void setup(){
   sCmd.addCommand("r", rationalMotors); 
   sCmd.addCommand("ping", pingMethod); 
   sCmd.addCommand("kick", kick);
-  sCmd.addCommand("spin", spin); 
+  sCmd.addCommand("grab", grab); 
   SDPsetup();
   helloWorld();
 }
