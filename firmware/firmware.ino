@@ -7,8 +7,11 @@
 #define RIGHT 3
 #define BACK 4
 #define LEFT 1
+
 #define SPINNER 2
-#define KICKER 0
+
+// pin numbers, for Direct IO
+#define KICKER 9;
 
 
 int run = 0;
@@ -64,39 +67,34 @@ void pingMethod(){
   Serial.println("pang");
 }
 
-void kicker(){
-// removed
-}
-
 void completeHalt(){
   motorAllStop();
 }
 
-void spin(){
-  int mode = atoi(sCmd.next());
-  if(mode == 1){
-    motorBackward(SPINNER, 120);
-  }
-  else{
-    motorStop(SPINNER);
-  }
-}
-
 void kick(){
-  digitalWrite(9,HIGH);
+  digitalWrite(KICKER,HIGH);
   delay(300);
-  digitalWrite(9,LOW);
+  digitalWrite(KICKER,LOW);
   Serial.println("kicked");
 }
 
+void spin(){
+  int spin = atoi(sCmd.next());
+  if(spin){
+    motorControl(SPINNER, 100);
+  }else{
+    motorControl(SPINNER, 0);
+  }
+}
+
 void setup(){
-  sCmd.addCommand("f", dontMove); 
-  sCmd.addCommand("h", completeHalt); 
-  sCmd.addCommand("motor", spinmotor); 
-  sCmd.addCommand("r", rationalMotors); 
-  sCmd.addCommand("ping", pingMethod); 
+  sCmd.addCommand("f", dontMove);
+  sCmd.addCommand("h", completeHalt);
+  sCmd.addCommand("motor", spinmotor);
+  sCmd.addCommand("r", rationalMotors);
+  sCmd.addCommand("ping", pingMethod);
   sCmd.addCommand("kick", kick);
-  sCmd.addCommand("spin", spin); 
+  sCmd.addCommand("spin", spin);
   SDPsetup();
   helloWorld();
 }
