@@ -2,6 +2,9 @@
 #include "SDPArduino.h"
 #include <Wire.h>
 #include <Arduino.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <semaphore.h>
 
 #define FRONT 5
 #define RIGHT 3
@@ -9,6 +12,7 @@
 #define LEFT 1
 #define SPINNER 2
 #define KICKER 0
+#define sensorAddress 6
 
 boolean grState = false;
 
@@ -20,8 +24,14 @@ SerialCommand sCmd;
 
 void loop(){
   sCmd.readSerial();
+  //poop();
 }
 
+void poop(){
+   int a = analogRead(3); 
+   Serial.println(a);
+   delay(100);
+}
 
 void test(){
   run = 1;
@@ -77,15 +87,15 @@ void grab(){
   int mode = atoi(sCmd.next());
   //0 for opened and 1 for closed
   if(mode == 1 && !grState){
-    //grState = 1;
-    motorBackward(SPINNER, 80);
+    grState = 1;
+    motorBackward(SPINNER, 90);
     delay(600);
     motorStop(SPINNER);
     Serial.println("closed");
   }
   else if(mode == 0 && grState){
     grState = 0;
-    motorForward(SPINNER, 80);
+    motorForward(SPINNER, 90);
     delay(600);
     motorStop(SPINNER);
     Serial.println("opened");
