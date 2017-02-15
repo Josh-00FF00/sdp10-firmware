@@ -88,15 +88,15 @@ void grab(){
   //0 for opened and 1 for closed
   if(mode == 1 && !grState){
     grState = 1;
-    motorBackward(SPINNER, 90);
-    delay(600);
+    motorBackward(SPINNER, 70);
+    delay(900);
     motorStop(SPINNER);
     Serial.println("closed");
   }
   else if(mode == 0 && grState){
     grState = 0;
-    motorForward(SPINNER, 90);
-    delay(600);
+    motorForward(SPINNER, 70);
+    delay(900);
     motorStop(SPINNER);
     Serial.println("opened");
   }
