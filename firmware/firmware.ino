@@ -2,9 +2,7 @@
 #include "SDPArduino.h"
 #include <Wire.h>
 #include <Arduino.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <semaphore.h>
 
 #define FRONT 5
 #define RIGHT 3
@@ -14,7 +12,7 @@
 #define SPINNER 2
 
 // pin numbers, for Direct IO
-#define KICKER 9;
+#define KICKER 9
 #define sensorAddress 6
 
 boolean grState = false;
@@ -23,17 +21,8 @@ int run = 0;
 
 SerialCommand sCmd;
 
-
-
 void loop(){
   sCmd.readSerial();
-  //poop();
-}
-
-void poop(){
-   int a = analogRead(3); 
-   Serial.println(a);
-   delay(100);
 }
 
 void test(){
@@ -117,6 +106,14 @@ void spin(){
   }
 }
 
+void getIRDistance(){
+  // http://www.sharp.co.jp/products/device/doc/opto/gp2y0d02yk_e.pdf
+  // returns 1 if there is an object closer than 80cm
+  int Vo = analogRead(A1);
+  Serial.print("IR value = ");
+  Serial.println(Vo, DEC);
+}
+
 void setup(){
   sCmd.addCommand("f", dontMove);
   sCmd.addCommand("h", completeHalt);
@@ -126,6 +123,8 @@ void setup(){
   sCmd.addCommand("kick", kick);
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
+  sCmd.addCommand("IR", getIRDistance);
+  
   SDPsetup();
   helloWorld();
 }
