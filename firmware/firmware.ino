@@ -92,7 +92,7 @@ void grab(){
 
 void kick(){
   digitalWrite(KICKER,HIGH);
-  delay(300);
+  delay(500);
   digitalWrite(KICKER,LOW);
   Serial.println("kicked");
 }
@@ -109,9 +109,17 @@ void spin(){
 void getIRDistance(){
   // http://www.sharp.co.jp/products/device/doc/opto/gp2y0d02yk_e.pdf
   // returns 1 if there is an object closer than 80cm
-  int Vo = analogRead(A1);
-  Serial.print("IR value = ");
-  Serial.println(Vo, DEC);
+  digitalWrite(3, HIGH);
+  int Vo = analogRead(A3);
+  
+  //Vo is low when object 20mm<x<100mm
+  if(!Vo){
+    Serial.println("Ball Detected");
+    Serial.println("[PKT] 1");
+  }else{
+    Serial.println("[PKT] 0");
+    Serial.println("Ball *NOT* Detected");
+  }
 }
 
 void setup(){
