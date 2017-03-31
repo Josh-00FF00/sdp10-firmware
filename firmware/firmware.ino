@@ -1,10 +1,7 @@
-#include "SerialCommand.h"
 #include "SDPArduino.h"
-#include <Wire.h>
+#include "SerialCommand.h"
 #include <Arduino.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <semaphore.h>
+#include <Wire.h>
 
 #define FRONT 5
 #define RIGHT 3
@@ -14,59 +11,48 @@
 #define SPINNER 2
 
 // pin numbers, for Direct IO
-#define KICKER 9;
+#define KICKER 9
 #define sensorAddress 6
 
 boolean grState = false;
 
-int run = 0;
-
 SerialCommand sCmd;
 
-
-
-void loop(){
+void loop() {
   sCmd.readSerial();
-  //poop();
+  readCompass(xyz);
+  sendCompass(xyz);
 }
 
-void poop(){
-   int a = analogRead(3); 
-   Serial.println(a);
-   delay(100);
-}
+sendCompass(int[] xyz) {}
 
-void test(){
-  run = 1;
-}
-
-void dontMove(){
+void dontMove() {
   motorStop(FRONT);
   motorStop(BACK);
   motorStop(LEFT);
   motorStop(RIGHT);
 }
 
-void spinmotor(){
+void spinmotor() {
   int motor = atoi(sCmd.next());
   int power = atoi(sCmd.next());
   motorForward(motor, power);
 }
 
-void motorControl(int motor, int power){
-  if(power == 0){
+void motorControl(int motor, int power) {
+  if (power == 0) {
     motorStop(motor);
-  } else if(power > 0){
+  } else if (power > 0) {
     motorBackward(motor, power);
   } else {
     motorForward(motor, -power);
   }
 }
 
-void rationalMotors(){
+void rationalMotors() {
   int front = atoi(sCmd.next());
-  int back  = atoi(sCmd.next());
-  int left  = atoi(sCmd.next());
+  int back = atoi(sCmd.next());
+  int left = atoi(sCmd.next());
   int right = atoi(sCmd.next());
   motorControl(FRONT, front);
   motorControl(BACK, back);
@@ -74,25 +60,20 @@ void rationalMotors(){
   motorControl(RIGHT, right);
 }
 
-void pingMethod(){
-  Serial.println("pang");
-}
+void pingMethod() { Serial.println("pang"); }
 
-void completeHalt(){
-  motorAllStop();
-}
+void completeHalt() { motorAllStop(); }
 
-void grab(){
+void grab() {
   int mode = atoi(sCmd.next());
-  //0 for opened and 1 for closed
-  if(mode == 1 && !grState){
+  // 0 for opened and 1 for closed
+  if (mode == 1 && !grState) {
     grState = 1;
     motorBackward(SPINNER, 70);
     delay(900);
     motorStop(SPINNER);
     Serial.println("closed");
-  }
-  else if(mode == 0 && grState){
+  } else if (mode == 0 && grState) {
     grState = 0;
     motorForward(SPINNER, 70);
     delay(900);
@@ -101,23 +82,23 @@ void grab(){
   }
 }
 
-void kick(){
-  digitalWrite(KICKER,HIGH);
+void kick() {
+  digitalWrite(KICKER, HIGH);
   delay(300);
-  digitalWrite(KICKER,LOW);
+  digitalWrite(KICKER, LOW);
   Serial.println("kicked");
 }
 
-void spin(){
+void spin() {
   int spin = atoi(sCmd.next());
-  if(spin){
+  if (spin) {
     motorControl(SPINNER, 100);
-  }else{
+  } else {
     motorControl(SPINNER, 0);
   }
 }
 
-void setup(){
+void setup() {
   sCmd.addCommand("f", dontMove);
   sCmd.addCommand("h", completeHalt);
   sCmd.addCommand("motor", spinmotor);
@@ -127,5 +108,8 @@ void setup(){
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
   SDPsetup();
+
+  int xyz[3];
+
   helloWorld();
 }

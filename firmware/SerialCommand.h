@@ -29,11 +29,12 @@
 #elif defined(ARDUINO) && ARDUINO >= 100
   #include <Arduino.h>
 #else
-  #include <WProgram.h>
+//#include <WProgram.h>
 #endif
 #include <string.h>
+#include <stdint.h>
 
-// Size of the input buffer in bytes (maximum length of one command plus arguments)
+// Size of the input buffer in uint8_t s (maximum length of one command plus arguments)
 #define SERIALCOMMAND_BUFFER 32
 // Maximum length of a command excluding the terminating null
 #define SERIALCOMMAND_MAXCOMMANDLENGTH 8
@@ -59,7 +60,7 @@ class SerialCommand {
       void (*function)();
     };                                    // Data structure to hold Command/Handler function key-value pairs
     SerialCommandCallback *commandList;   // Actual definition for command/handler array
-    byte commandCount;
+    uint8_t commandCount;
 
     // Pointer to the default handler function
     void (*defaultHandler)(const char *);
@@ -68,7 +69,7 @@ class SerialCommand {
     char term;     // Character that signals end of command (default '\n')
 
     char buffer[SERIALCOMMAND_BUFFER + 1]; // Buffer of stored characters while waiting for terminator character
-    byte bufPos;                        // Current position in the buffer
+    uint8_t  bufPos;                        // Current position in the buffer
     char *last;                         // State variable used by strtok_r during processing
 };
 
