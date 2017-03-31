@@ -10,11 +10,15 @@
 
 #define SPINNER 2
 
+#define NEWKICKER 0
+
 // pin numbers, for Direct IO
 #define KICKER 9
 #define sensorAddress 6
+#define STATE = A3;
 
 boolean grState = false;
+int IRState;
 
 SerialCommand sCmd;
 
@@ -75,16 +79,17 @@ void completeHalt() { motorAllStop(); }
 
 void grab() {
   int mode = atoi(sCmd.next());
-  // 0 for opened and 1 for closed
-  if (mode == 1 && !grState) {
+  //0 for opened and 1 for closed
+  if(mode == 1){
     grState = 1;
-    motorBackward(SPINNER, 70);
-    delay(900);
-    motorStop(SPINNER);
-    Serial.println("closed");
-  } else if (mode == 0 && grState) {
-    grState = 0;
     motorForward(SPINNER, 70);
+    delay(900);
+    //motorStop(SPINNER);
+    Serial.println("closed");
+  }
+  else if(mode == 0){
+    grState = 0;
+    motorBackward(SPINNER, 70);
     delay(900);
     motorStop(SPINNER);
     Serial.println("opened");
@@ -108,28 +113,22 @@ void spin() {
 }
 
 void getIRDistance(){
+  IRState = digitalRead(STATE);
+  Serial.print("[PKT] ");
+  Serial.println(IRState);
   // http://www.sharp.co.jp/products/device/doc/opto/gp2y0d02yk_e.pdf
-  // returns 1 if there is an object closer than 80cm
-  digitalWrite(3, HIGH);
-  int Vo = analogRead(A3);
 
-  //Vo is low when object 20mm<x<100mm
-  if(!Vo){
-    Serial.println("Ball Detected");
-    Serial.println("[PKT] 1");
-  }else{
-    Serial.println("[PKT] 0");
-    Serial.println("Ball *NOT* Detected");
-  }
 }
 
 void setup(){
+  pinMode(3, OUTPUT);
+
   sCmd.addCommand("f", dontMove);
   sCmd.addCommand("h", completeHalt);
   sCmd.addCommand("motor", spinmotor);
   sCmd.addCommand("r", rationalMotors);
   sCmd.addCommand("ping", pingMethod);
-  sCmd.addCommand("kick", kick);
+  sCmd.addCommand("kick", kick2);
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
   sCmd.addCommand("IR", getIRDistance);
