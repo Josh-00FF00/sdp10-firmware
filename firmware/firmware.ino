@@ -2,9 +2,7 @@
 #include "SDPArduino.h"
 #include <Wire.h>
 #include <Arduino.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <semaphore.h>
 
 #define FRONT 5
 #define RIGHT 3
@@ -13,27 +11,22 @@
 
 #define SPINNER 2
 
+#define NEWKICKER 0
+
 // pin numbers, for Direct IO
-#define KICKER 9;
+#define KICKER 9
 #define sensorAddress 6
 
 boolean grState = false;
+int IRState;
+const int STATE = A3;
 
 int run = 0;
 
 SerialCommand sCmd;
 
-
-
 void loop(){
   sCmd.readSerial();
-  //poop();
-}
-
-void poop(){
-   int a = analogRead(3); 
-   Serial.println(a);
-   delay(100);
 }
 
 void test(){
@@ -85,16 +78,16 @@ void completeHalt(){
 void grab(){
   int mode = atoi(sCmd.next());
   //0 for opened and 1 for closed
-  if(mode == 1 && !grState){
+  if(mode == 1){
     grState = 1;
-    motorBackward(SPINNER, 70);
+    motorForward(SPINNER, 70);
     delay(900);
-    motorStop(SPINNER);
+    //motorStop(SPINNER);
     Serial.println("closed");
   }
-  else if(mode == 0 && grState){
+  else if(mode == 0){
     grState = 0;
-    motorForward(SPINNER, 70);
+    motorBackward(SPINNER, 70);
     delay(900);
     motorStop(SPINNER);
     Serial.println("opened");
@@ -103,9 +96,20 @@ void grab(){
 
 void kick(){
   digitalWrite(KICKER,HIGH);
-  delay(300);
+  delay(500);
   digitalWrite(KICKER,LOW);
   Serial.println("kicked");
+}
+
+void kick2(){
+   motorBackward(LEFT, 70);
+   motorBackward(RIGHT, 70);
+   motorBackward(NEWKICKER, 100);
+   delay(1500);
+   motorStop(LEFT);
+   motorStop(RIGHT);
+   motorStop(NEWKICKER);
+   Serial.println("kicked");
 }
 
 void spin(){
@@ -117,15 +121,30 @@ void spin(){
   }
 }
 
+void getIRDistance(){
+  IRState = digitalRead(STATE);
+  Serial.print("[PKT] ");
+  Serial.println(IRState);
+  // http://www.sharp.co.jp/products/device/doc/opto/gp2y0d02yk_e.pdf
+
+}
+
+
+
 void setup(){
+  pinMode(3, OUTPUT);
+  pinMode(STATE, INPUT);
+  
   sCmd.addCommand("f", dontMove);
   sCmd.addCommand("h", completeHalt);
   sCmd.addCommand("motor", spinmotor);
   sCmd.addCommand("r", rationalMotors);
   sCmd.addCommand("ping", pingMethod);
-  sCmd.addCommand("kick", kick);
+  sCmd.addCommand("kick", kick2);
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
+  sCmd.addCommand("IR", getIRDistance);
+  
   SDPsetup();
   helloWorld();
 }
