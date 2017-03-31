@@ -24,7 +24,16 @@ void loop() {
   sendCompass(xyz);
 }
 
-sendCompass(int[] xyz) {}
+sendCompass(int[] xyz) {
+  Serial.print("x: ");
+  Serial.print(xyz[0]);
+
+  Serial.print(" y: ");
+  Serial.print(xyz[1]);
+
+  Serial.print(" z: ");
+  Serial.println(xyz[2]);
+}
 
 void dontMove() {
   motorStop(FRONT);
