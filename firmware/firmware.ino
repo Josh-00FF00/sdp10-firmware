@@ -10,8 +10,6 @@
 
 #define SPINNER 2
 
-#define NEWKICKER 0
-
 // pin numbers, for Direct IO
 #define KICKER 9
 #define sensorAddress 6
@@ -128,7 +126,7 @@ void setup(){
   sCmd.addCommand("motor", spinmotor);
   sCmd.addCommand("r", rationalMotors);
   sCmd.addCommand("ping", pingMethod);
-  sCmd.addCommand("kick", kick2);
+  sCmd.addCommand("kick", kick);
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
   sCmd.addCommand("IR", getIRDistance);
