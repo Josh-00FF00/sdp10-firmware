@@ -98,7 +98,23 @@ void spin() {
   }
 }
 
-void setup() {
+void getIRDistance(){
+  // http://www.sharp.co.jp/products/device/doc/opto/gp2y0d02yk_e.pdf
+  // returns 1 if there is an object closer than 80cm
+  digitalWrite(3, HIGH);
+  int Vo = analogRead(A3);
+
+  //Vo is low when object 20mm<x<100mm
+  if(!Vo){
+    Serial.println("Ball Detected");
+    Serial.println("[PKT] 1");
+  }else{
+    Serial.println("[PKT] 0");
+    Serial.println("Ball *NOT* Detected");
+  }
+}
+
+void setup(){
   sCmd.addCommand("f", dontMove);
   sCmd.addCommand("h", completeHalt);
   sCmd.addCommand("motor", spinmotor);
@@ -107,6 +123,7 @@ void setup() {
   sCmd.addCommand("kick", kick);
   sCmd.addCommand("spin", spin);
   sCmd.addCommand("grab", grab);
+  sCmd.addCommand("IR", getIRDistance);
   SDPsetup();
 
   int xyz[3];
